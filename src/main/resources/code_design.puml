@@ -1,0 +1,118 @@
+@startuml Design Patterns 1
+
+class Main {}
+
+note left of Main: Entry point\nof program
+
+namespace declaration {
+
+    abstract class Declaration {}
+    class Action {}
+    class Transition {}
+    class Trigger {}
+
+    Declaration <|-- Action
+    Declaration <|-- Transition
+    Declaration <|-- Trigger
+
+    namespace state {
+
+        abstract class State {}
+        class SomeState {}
+        class StateFactory {}
+
+        note right of SomeState: Compound, Final,\nInitial & Simple
+        note left of SomeState: Compound is a\ncomposition pattern\nof Simple
+        note left of StateFactory: Late binding\nfactory method
+
+        State <|-- SomeState
+        StateFactory --> SomeState
+
+    }
+
+    Declaration <|-- State
+
+}
+
+namespace interpreter {
+
+    abstract class FSM42 {}
+
+}
+
+namespace parser {
+
+    interface DeclarationParserStrategy {}
+
+    class SomeParser {}
+    class DeclarationFactory {}
+    class ParsingContext {}
+
+    note left of DeclarationParserStrategy: Strategy pattern
+    note right of SomeParser: Action, State,\nTransition & Trigger
+    note left of DeclarationFactory: Late binding\nfactory method
+    note left of ParsingContext: Hold references to\neach object created\nto easily attach\nreferences
+
+    DeclarationParserStrategy <|.. SomeParser
+    DeclarationParserStrategy --> ParsingContext
+    DeclarationFactory --> SomeParser
+}
+
+namespace ruleset {
+
+    class Rule {}
+    class Ruleset {}
+    class RulesetBuilder {}
+    class RulesetDirector {}
+
+    note left of RulesetBuilder: Builder pattern
+
+    Ruleset --> Rule
+    RulesetBuilder --> Ruleset
+    RulesetDirector --> RulesetBuilder
+
+}
+
+namespace tokenizer {
+
+    abstract class Tokenizer {}
+    class SomeTokenizer {}
+    class TokenizerFactory {}
+    class Token {}
+
+    note right of SomeTokenizer: Action, State,\nTransition & Trigger
+    note left of TokenizerFactory: Late binding\nfactory method
+
+    Tokenizer <|-- SomeTokenizer
+    Tokenizer --> Token
+    TokenizerFactory --> SomeTokenizer
+
+}
+
+namespace ui {
+
+    interface DeclarationVisitor {}
+    interface DrawerStrategy {}
+
+    class ConsoleDrawer {}
+    class PngDrawer {}
+
+    note bottom of DeclarationVisitor: Visitor pattern
+    note left of DrawerStrategy: Strategy pattern
+
+    DeclarationVisitor <|.. ConsoleDrawer
+    DeclarationVisitor <|.. PngDrawer
+    DrawerStrategy <|.. ConsoleDrawer
+    DrawerStrategy <|.. PngDrawer
+
+}
+
+Main --> FSM42
+Main --> ui
+FSM42 --> tokenizer
+FSM42 --> declaration
+declaration --> parser
+declaration --> ruleset
+ui --> declaration
+
+@enduml

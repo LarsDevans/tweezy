@@ -1,0 +1,71 @@
+package nl.avans.declaration.state;
+
+import java.util.Optional;
+
+import nl.avans.declaration.Action;
+import nl.avans.declaration.Transition;
+import nl.avans.parser.ParsingContext;
+import nl.avans.ruleset.RulesetDirector;
+
+public class FinalState extends State {
+
+    private Transition transition;
+    private Action action;
+
+    public FinalState(
+        String identifier,
+        String parentIdentifier,
+        String name
+    ) {
+        super(identifier, parentIdentifier, name, "FINAL");
+    }
+
+    public Transition getTransition() {
+        return transition;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    @Override
+    public void attachReferences(ParsingContext ctx) {
+        super.attachReferences(ctx);
+
+        transition = ctx.where(
+            ctx.getAllTransitions(),
+            Transition::getDestinationIdentifier,
+            super.getIdentifier()
+        ).orElse(null);
+        action = ctx.getAction(super.getIdentifier());
+    }
+
+    @Override
+    public void attachRuleset() {
+        RulesetDirector director = new RulesetDirector();
+        director.constructFinalStateRuleset(this);
+        super.setRuleset(director.build());
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+            """
+            --------------------------------------------------
+            Final State with:
+                Identifier: %s
+                Parent:     %s
+                Name:       %s
+                Transition: %s
+                Action:     %s
+            --------------------------------------------------
+            """,
+            super.getIdentifier(),
+            super.getParentIdentifier(),
+            getName(),
+            Optional.ofNullable(getTransition()).map(Transition::getIdentifier).orElse("None"),
+            Optional.ofNullable(getAction()).map(Action::getIdentifier).orElse("None")
+        );
+    }
+
+}
