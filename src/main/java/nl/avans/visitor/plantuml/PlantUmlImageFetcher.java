@@ -1,0 +1,79 @@
+package nl.avans.visitor.plantuml;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.Deflater;
+
+import javax.imageio.ImageIO;
+
+public class PlantUmlImageFetcher {
+    public PlantUmlImageFetcher(String syntax) throws IOException {
+		String encoded = encode(syntax);
+		fetchAndSaveImageFromUrl("https://img.plantuml.biz/plantuml/png/" + encoded);
+    }
+
+	public static void fetchAndSaveImageFromUrl(String newUrl) throws IOException {
+		BufferedImage image = null;
+		URL url = new URL(newUrl);
+		
+		image = ImageIO.read(url);
+
+		File outputfile = new File("image.jpg");
+		ImageIO.write(image, "jpg", outputfile);
+	}
+
+	public String encode(String source) {
+		byte[] compressed = deflate(source);
+		return encode64(compressed);
+	}
+	
+	private byte[] deflate(String input) {
+		byte[] data = input.getBytes(StandardCharsets.UTF_8);
+		Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION, true);
+		deflater.setInput(data);
+		deflater.finish();
+				
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		while (!deflater.finished()) {
+			int count = deflater.deflate(buffer);
+			out.write(buffer, 0, count);
+		}
+		deflater.end();
+		return out.toByteArray();
+	}
+	
+	private String encode64(byte[] data) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < data.length; i += 3) {
+			int b1 = data[i] & 0xFF;
+            int b2 = (i + 1 < data.length) ? data[i + 1] & 0xFF : 0;
+            int b3 = (i + 2 < data.length) ? data[i + 2] & 0xFF : 0;
+
+            int c1 = b1 >> 2;
+            int c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+            int c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+            int c4 = b3 & 0x3F;
+
+            sb.append(encode6bit(c1 & 0x3F));
+            sb.append(encode6bit(c2 & 0x3F));
+            sb.append(encode6bit(c3 & 0x3F));
+            sb.append(encode6bit(c4 & 0x3F));
+		}
+		return sb.toString();
+	}
+
+    private char encode6bit(int b) {
+        if (b < 10) return (char) ('0' + b);
+        b -= 10;
+        if (b < 26) return (char) ('A' + b);
+        b -= 26;
+        if (b < 26) return (char) ('a' + b);
+        b -= 26;
+        return (b == 0) ? '-' : '_';
+    }
+}

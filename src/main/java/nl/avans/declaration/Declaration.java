@@ -2,8 +2,9 @@ package nl.avans.declaration;
 
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.Ruleset;
+import nl.avans.visitor.IVisitable;
 
-public abstract class Declaration {
+public abstract class Declaration implements IVisitable {
 
     private String identifier;
 

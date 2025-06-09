@@ -5,6 +5,7 @@ import java.util.Optional;
 import nl.avans.declaration.state.State;
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
+import nl.avans.visitor.IDeclarationVisitor;
 
 public class Transition extends Declaration {
 
@@ -16,6 +17,7 @@ public class Transition extends Declaration {
     private State source;
     private State destination;
     private Trigger trigger;
+    private Action action;
 
     public Transition(
         String identifier,
@@ -56,6 +58,10 @@ public class Transition extends Declaration {
         return trigger;
     }
 
+    public Action getAction() {
+        return action;
+    }
+
     public String getGuardCondition() {
         return guardCondition;
     }
@@ -65,6 +71,7 @@ public class Transition extends Declaration {
         source = ctx.getState(sourceIdentifier);
         destination = ctx.getState(destinationIdentifier);
         trigger = ctx.getTrigger(triggerIdentifier);
+        action = ctx.getAction(super.getIdentifier()) == null ? null : ctx.getAction(super.getIdentifier()).getFirst();;
     }
 
     @Override
@@ -93,6 +100,11 @@ public class Transition extends Declaration {
             Optional.ofNullable(getTrigger()).map(Trigger::getIdentifier).orElse("None"),
             getGuardCondition()
         );
+    }
+
+    @Override
+    public void Accept(IDeclarationVisitor visitor) {
+        visitor.Visit(this);
     }
 
 }

@@ -6,6 +6,7 @@ import nl.avans.declaration.Action;
 import nl.avans.declaration.Transition;
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
+import nl.avans.visitor.IDeclarationVisitor;
 
 public class FinalState extends State {
 
@@ -37,7 +38,7 @@ public class FinalState extends State {
             Transition::getDestinationIdentifier,
             super.getIdentifier()
         ).orElse(null);
-        action = ctx.getAction(super.getIdentifier());
+        action = ctx.getAction(super.getIdentifier()) == null ? null : ctx.getAction(super.getIdentifier()).getFirst();
     }
 
     @Override
@@ -66,6 +67,11 @@ public class FinalState extends State {
             Optional.ofNullable(getTransition()).map(Transition::getIdentifier).orElse("None"),
             Optional.ofNullable(getAction()).map(Action::getIdentifier).orElse("None")
         );
+    }
+
+    @Override
+    public void Accept(IDeclarationVisitor visitor) {
+        visitor.Visit(this);
     }
 
 }

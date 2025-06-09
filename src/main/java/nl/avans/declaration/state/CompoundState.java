@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
+import nl.avans.visitor.IDeclarationVisitor;
 
 public class CompoundState extends State {
 
@@ -58,5 +59,10 @@ public class CompoundState extends State {
             getName(),
             getChildren().stream().map(State::getIdentifier).collect(Collectors.joining(", "))
         );
+    }
+
+    @Override
+    public void Accept(IDeclarationVisitor visitor) {
+        visitor.Visit(this);
     }
 }

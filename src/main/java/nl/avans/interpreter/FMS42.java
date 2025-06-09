@@ -10,6 +10,9 @@ import nl.avans.parser.ParsingContext;
 import nl.avans.tokenizer.Token;
 import nl.avans.tokenizer.Tokenizer;
 import nl.avans.tokenizer.TokenizerFactory;
+import nl.avans.visitor.ConsoleDeclarationVisitor;
+import nl.avans.visitor.IDrawStrategy;
+import nl.avans.visitor.plantuml.PlantUmlDeclarationVisitor;
 
 public abstract class FMS42 {
 
@@ -52,6 +55,10 @@ public abstract class FMS42 {
                 declaration.getRuleset().validate();
             }
         }
+
+        // IDrawStrategy drawer = new PlantUmlDeclarationVisitor();
+        IDrawStrategy drawer = new ConsoleDeclarationVisitor();
+        drawer.Draw(declarations);
     }
 
     private static Token[] extractTokensFromStatement(String statement) {

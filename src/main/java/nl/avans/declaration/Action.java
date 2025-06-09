@@ -2,6 +2,7 @@ package nl.avans.declaration;
 
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
+import nl.avans.visitor.IDeclarationVisitor;
 
 public class Action extends Declaration {
 
@@ -70,6 +71,11 @@ public class Action extends Declaration {
             getDescription(),
             getActionType()
         );
+    }
+
+    @Override
+    public void Accept(IDeclarationVisitor visitor) {
+        visitor.Visit(this);
     }
 
 }

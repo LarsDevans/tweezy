@@ -1,6 +1,8 @@
 package nl.avans.parser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -14,7 +16,7 @@ public class ParsingContext {
 
     private Map<String, State> states = new HashMap<>();
     private Map<String, Trigger> triggers = new HashMap<>();
-    private Map<String, Action> actions = new HashMap<>();
+    private Map<String, List<Action>> actions = new HashMap<>();
     private Map<String, Transition> transitions = new HashMap<>();
 
     public void addState(String identifier, State node) {
@@ -42,14 +44,20 @@ public class ParsingContext {
     }
 
     public void addAction(String identifier, Action action) {
-        actions.put(identifier, action);
+        if (actions.get(identifier) != null) {
+            actions.get(identifier).add(action);
+        } else {
+            List<Action> list = new ArrayList<Action>();
+            list.add(action);
+            actions.put(identifier, list);
+        }
     }
 
-    public Map<String, Action> getAllActions() {
+    public Map<String, List<Action>> getAllActions() {
         return actions;
     }
 
-    public Action getAction(String identifier) {
+    public List<Action> getAction(String identifier) {
         return actions.get(identifier);
     }
 

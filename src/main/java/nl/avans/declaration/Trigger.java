@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
+import nl.avans.visitor.IDeclarationVisitor;
 
 public class Trigger extends Declaration {
 
@@ -57,6 +58,11 @@ public class Trigger extends Declaration {
             getDescription(),
             Optional.ofNullable(getTransition()).map(Transition::getIdentifier).orElse("None")
         );
+    }
+
+    @Override
+    public void Accept(IDeclarationVisitor visitor) {
+        visitor.Visit(this);
     }
 
 }

@@ -8,6 +8,7 @@ import nl.avans.declaration.Action;
 import nl.avans.declaration.Transition;
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
+import nl.avans.visitor.IDeclarationVisitor;
 
 public class SimpleState extends State {
 
@@ -28,10 +29,11 @@ public class SimpleState extends State {
     @Override
     public void attachReferences(ParsingContext ctx) {
         super.attachReferences(ctx);
-
-        for (Action action : ctx.getAllActions().values()) {
-            if (action.getIdentifier() == super.getIdentifier()) {
-                this.actions.add(action);
+        for (List<Action> list : ctx.getAllActions().values()) {
+            for (Action action : list) {
+                if (action.getIdentifier().equals(super.getIdentifier())) {
+                    this.actions.add(action);
+                }
             }
         }
     }
@@ -53,6 +55,7 @@ public class SimpleState extends State {
                 Parent:         %s
                 Name:           %s
                 Transitions:    %s
+                Actions:        %s
             --------------------------------------------------
             """,
             super.getIdentifier(),
@@ -61,6 +64,11 @@ public class SimpleState extends State {
             getTransitions().stream().map(Transition::getIdentifier).collect(Collectors.joining(", ")),
             getActions().stream().map(Action::getIdentifier).collect(Collectors.joining(", "))
         );
+    }
+
+    @Override
+    public void Accept(IDeclarationVisitor visitor) {
+        visitor.Visit(this);
     }
 
 }
