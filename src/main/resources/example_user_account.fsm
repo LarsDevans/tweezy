@@ -13,7 +13,7 @@ STATE unverified inactive "Unverified" : SIMPLE;
 STATE blocked inactive "Blocked" : SIMPLE;
 STATE deleted inactive "Deleted" : SIMPLE;
 STATE verified active "Verified" : SIMPLE;
-STATE logged_in active "Logged in" : SIMPLE;
+STATE loggedIn active "Logged in" : SIMPLE;
 STATE final _ "Archived" : FINAL;
 
 #
@@ -21,12 +21,12 @@ STATE final _ "Archived" : FINAL;
 #
 
 TRIGGER create "create";
-TRIGGER timer_elapsed "timer elapsed";
-TRIGGER email_verification "email verification";
-TRIGGER blocked_by_admin "blocked by admin";
-TRIGGER unblocked_by_admin "unblocked by admin";
-TRIGGER deleted_by_admin "deleted by admin";
-TRIGGER forget_me "forget me";
+TRIGGER timerElapsed "timer elapsed";
+TRIGGER emailVerification "email verification";
+TRIGGER blockedByAdmin "blocked by admin";
+TRIGGER unblockedByAdmin "unblocked by admin";
+TRIGGER deletedByAdmin "deleted by admin";
+TRIGGER forgetMe "forget me";
 TRIGGER login "login";
 TRIGGER logout "logout";
 TRIGGER archive "archive";
@@ -42,26 +42,25 @@ ACTION blocked "notify user" : ENTRY_ACTION;
 ACTION active "logout" : EXIT_ACTION;
 ACTION verified "notify user" : ENTRY_ACTION;
 ACTION deleted "anonymize" : ENTRY_ACTION;
-ACTION logged_in "reset attempts" : ENTRY_ACTION;
-ACTION logged_in "log activity" : DO_ACTION;
+ACTION loggedIn "reset attempts" : ENTRY_ACTION;
+ACTION loggedIn "log activity" : DO_ACTION;
 
-ACTION t2 "attempts = 0" : TRANSITION_ACTION;
-ACTION t3 "attempts++" : TRANSITION_ACTION;
+ACTION unverifiedToVerified "attempts = 0" : TRANSITION_ACTION;
+ACTION verifiedToVerified "attempts++" : TRANSITION_ACTION;
 
 #
 # Description of all the transitions
 #
 
-TRANSITION t1 initial -> unverified create "";
-TRANSITION t2 unverified -> verified email_verification "";
-TRANSITION t3 verified -> verified login "invalid credentials";
-TRANSITION t4 verified -> logged_in login "valid credentials";
-TRANSITION t5 logged_in -> verified logout "";
-TRANSITION t6 logged_in -> deleted forget_me "valid credentials";
-TRANSITION t7 verified -> blocked "attempts >= 3";
-TRANSITION t8 active -> blocked blocked_by_admin "";
-TRANSITION t9 blocked -> verified unblocked_by_admin "";
-TRANSITION t10 blocked -> deleted deleted_by_admin "";
-TRANSITION t11 deleted -> final archive "";
-TRANSITION t12 unverified -> deleted timer_elapsed "";
-
+TRANSITION initialToUnverified initial -> unverified create "";
+TRANSITION unverifiedToVerified unverified -> verified emailVerification "";
+TRANSITION verifiedToVerified verified -> verified login "invalid credentials";
+TRANSITION verifiedToLoggedIn verified -> loggedIn login "valid credentials";
+TRANSITION loggedInToVerified loggedIn -> verified logout "";
+TRANSITION loggedInToDeleted loggedIn -> deleted forgetMe "valid credentials";
+TRANSITION verifiedToBlocked verified -> blocked "attempts >= 3";
+TRANSITION activeToBlocked active -> blocked blockedByAdmin "";
+TRANSITION blockedToVerified blocked -> verified unblockedByAdmin "";
+TRANSITION blockedToDeleted blocked -> deleted deletedByAdmin "";
+TRANSITION deletedToFinal deleted -> final archive "";
+TRANSITION unverifiedToDeleted unverified -> deleted timerElapsed "";

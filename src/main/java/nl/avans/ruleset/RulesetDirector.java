@@ -23,7 +23,8 @@ public class RulesetDirector {
             .addRule(CommonRule.DeclarationIdentifierRule(state), state)
             .addRule(CommonRule.StateParentalRule(state), state)
             .addRule(CommonRule.StateNamingRule(state), state)
-            .addRule(CommonRule.StateTypeRule(state), state);
+            .addRule(CommonRule.StateDeterministicRule(state), state)
+            .addRule(CommonRule.DenyIncomingTransitionsRule(state), state);
     }
 
     public void constructFinalStateRuleset(FinalState state) {
@@ -31,7 +32,18 @@ public class RulesetDirector {
             .addRule(CommonRule.DeclarationIdentifierRule(state), state)
             .addRule(CommonRule.StateParentalRule(state), state)
             .addRule(CommonRule.StateNamingRule(state), state)
-            .addRule(CommonRule.StateTypeRule(state), state);
+            .addRule(CommonRule.StateDeterministicRule(state), state)
+            .addRule(
+                new Rule<FinalState>(
+                    s -> !s.getTransitions().stream()
+                        .anyMatch(t -> t.getSourceIdentifier().equals(s.getIdentifier())),
+                    String.format(
+                        "De state '%s' mag geen uitgaande transities bevatten.",
+                        state.getIdentifier()
+                    )
+                ),
+                state
+            );
     }
 
     public void constructInitialStateRuleset(InitialState state) {
@@ -39,7 +51,8 @@ public class RulesetDirector {
             .addRule(CommonRule.DeclarationIdentifierRule(state), state)
             .addRule(CommonRule.StateParentalRule(state), state)
             .addRule(CommonRule.StateNamingRule(state), state)
-            .addRule(CommonRule.StateTypeRule(state), state);
+            .addRule(CommonRule.StateDeterministicRule(state), state)
+            .addRule(CommonRule.DenyIncomingTransitionsRule(state), state);
     }
 
     public void constructSimpleStateRuleset(SimpleState state) {
@@ -47,7 +60,19 @@ public class RulesetDirector {
             .addRule(CommonRule.DeclarationIdentifierRule(state), state)
             .addRule(CommonRule.StateParentalRule(state), state)
             .addRule(CommonRule.StateNamingRule(state), state)
-            .addRule(CommonRule.StateTypeRule(state), state);
+            .addRule(CommonRule.StateDeterministicRule(state), state)
+            .addRule(
+                new Rule<SimpleState>(
+                    s -> s.getTransitions().stream().anyMatch(
+                        t -> t.getDestinationIdentifier().equals(s.getIdentifier())
+                    ),
+                    String.format(
+                        "De state '%s' is niet bereikbaar.",
+                        state.getIdentifier()
+                    )
+                ),
+                state
+            );
     }
 
     public void constructTriggerRuleset(Trigger trigger) {
@@ -73,18 +98,6 @@ public class RulesetDirector {
                     a -> !a.getDescription().isBlank(),
                     String.format(
                         "De description van action '%s' is ongeldig. Het moet minstens uit één karakter bestaan.",
-                        action.getIdentifier()
-                    )
-                ),
-                action
-            )
-            .addRule(
-                new Rule<Action>(
-                    a -> a.getActionType().matches(
-                        "ENTRY_ACTION|DO_ACTION|EXIT_ACTION|TRANSITION_ACTION"
-                    ),
-                    String.format(
-                        "Het type van action '%s' is ongeldig. Toegestane types: ENTRY_ACTION, DO_ACTION, EXIT_ACTION, TRANSITION_ACTION.",
                         action.getIdentifier()
                     )
                 ),
@@ -154,11 +167,41 @@ public class RulesetDirector {
             );
         }
 
-        public static Rule<State> StateTypeRule(State state) {
+        public static Rule<State> StateDeterministicRule(State state) {
             return new Rule<State>(
-                s -> s.getStateType().matches("INITIAL|SIMPLE|COMPOUND|FINAL"),
+                s -> {
+                    if (s.getTransitions().size() <= 1) {
+                        return true;
+                    }
+
+                    long uniquePairs = s.getTransitions().stream()
+                        .map(t ->
+                            String.format(
+                                "%s | %s",
+                                t.getTrigger() != null
+                                    ? t.getTrigger().getDescription()
+                                    : "_",
+                                t.getGuardCondition()
+                            )
+                        )
+                        .distinct()
+                        .count();
+
+                    return uniquePairs == s.getTransitions().size();
+                },
                 String.format(
-                    "Het type van state '%s' is ongeldig. Toegestane types: INITIAL, SIMPLE, COMPOUND, FINAL.",
+                    "De transitions van state '%s' zijn niet deterministisch.",
+                    state.getIdentifier()
+                )
+            );
+        }
+
+        public static Rule<State> DenyIncomingTransitionsRule(State state) {
+            return new Rule<State>(
+                s -> !s.getTransitions().stream()
+                    .anyMatch(t -> t.getDestinationIdentifier().equals(s.getIdentifier())),
+                String.format(
+                    "De state '%s' mag geen inkomende transities bevatten.",
                     state.getIdentifier()
                 )
             );

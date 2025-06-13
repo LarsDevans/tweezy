@@ -15,9 +15,9 @@ STATE final _ "powered off" : FINAL;
 # Description of all the triggers
 #
 
-TRIGGER power_on "turn power on";
-TRIGGER push_switch "Push switch";
-TRIGGER power_off "turn power off";
+TRIGGER powerOn "turn power on";
+TRIGGER pushSwitch "Push switch";
+TRIGGER powerOff "turn power off";
 
 #
 # Description of all the actions
@@ -26,14 +26,13 @@ TRIGGER power_off "turn power off";
 ACTION on "Turn lamp on" : ENTRY_ACTION;
 ACTION on "Turn lamp off" : EXIT_ACTION;
 ACTION off "Start off timer" : ENTRY_ACTION;
-ACTION t2 "reset off timer" : TRANSITION_ACTION;
+ACTION offToOn "reset off timer" : TRANSITION_ACTION;
 
 #
 # Description of all the transitions
 #
 
-TRANSITION t1 initial -> off power_on "";
-TRANSITION t2 off -> on push_switch "time off > 10s";
-TRANSITION t3 on -> off push_switch "";
-TRANSITION t4 powered -> final power_off "";
-
+TRANSITION initialToOff initial -> off powerOn "";
+TRANSITION offToOn off -> on pushSwitch "time off > 10s";
+TRANSITION onToOff on -> off pushSwitch "";
+TRANSITION poweredToFinal powered -> final powerOff "";
