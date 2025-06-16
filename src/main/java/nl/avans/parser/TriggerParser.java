@@ -2,14 +2,17 @@ package nl.avans.parser;
 
 import nl.avans.declaration.Declaration;
 import nl.avans.declaration.Trigger;
+import nl.avans.declaration.Declaration.Identifier;
+import nl.avans.declaration.Trigger.TriggerDescription;
 import nl.avans.tokenizer.Token;
 
 public class TriggerParser implements DeclarationParserStrategy {
 
     @Override
     public Declaration parse(Token[] tokens, ParsingContext ctx) {
-        String identifier = tokens[1].literal();
-        String description = tokens[2].literal();
+        // The token indexes are assured by the tokenizer, therefore we can index it.
+        Identifier identifier = new Identifier(tokens[1].literal());
+        TriggerDescription description = new TriggerDescription(tokens[2].literal());
 
         Trigger declaration = new Trigger(identifier, description);
 
@@ -17,5 +20,4 @@ public class TriggerParser implements DeclarationParserStrategy {
 
         return declaration;
     }
-
 }

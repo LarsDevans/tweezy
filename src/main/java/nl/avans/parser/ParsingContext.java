@@ -10,40 +10,41 @@ import java.util.function.Function;
 import nl.avans.declaration.Action;
 import nl.avans.declaration.Transition;
 import nl.avans.declaration.Trigger;
+import nl.avans.declaration.Declaration.Identifier;
 import nl.avans.declaration.state.State;
 
 public class ParsingContext {
 
-    private Map<String, State> states = new HashMap<>();
-    private Map<String, Trigger> triggers = new HashMap<>();
-    private Map<String, List<Action>> actions = new HashMap<>();
-    private Map<String, Transition> transitions = new HashMap<>();
+    private Map<Identifier, State> states = new HashMap<>();
+    private Map<Identifier, Trigger> triggers = new HashMap<>();
+    private Map<Identifier, List<Action>> actions = new HashMap<>();
+    private Map<Identifier, Transition> transitions = new HashMap<>();
 
-    public void addState(String identifier, State node) {
+    public void addState(Identifier identifier, State node) {
         states.put(identifier, node);
     }
 
-    public Map<String, State> getAllStates() {
+    public Map<Identifier, State> getAllStates() {
         return states;
     }
 
-    public State getState(String identifier) {
+    public State getState(Identifier identifier) {
         return states.get(identifier);
     }
 
-    public void addTrigger(String identifier, Trigger trigger) {
+    public void addTrigger(Identifier identifier, Trigger trigger) {
         triggers.put(identifier, trigger);
     }
 
-    public Map<String, Trigger> getAllTriggers() {
+    public Map<Identifier, Trigger> getAllTriggers() {
         return triggers;
     }
 
-    public Trigger getTrigger(String identifier) {
+    public Trigger getTrigger(Identifier identifier) {
         return triggers.get(identifier);
     }
 
-    public void addAction(String identifier, Action action) {
+    public void addAction(Identifier identifier, Action action) {
         if (actions.get(identifier) != null) {
             actions.get(identifier).add(action);
         } else {
@@ -53,30 +54,33 @@ public class ParsingContext {
         }
     }
 
-    public Map<String, List<Action>> getAllActions() {
+    public Map<Identifier, List<Action>> getAllActions() {
         return actions;
     }
 
-    public List<Action> getAction(String identifier) {
+    public List<Action> getActions(Identifier identifier) {
         return actions.get(identifier);
     }
 
-    public void addTransition(String identifier, Transition transition) {
+    public void addTransition(Identifier identifier, Transition transition) {
         transitions.put(identifier, transition);
     }
 
-    public Map<String, Transition> getAllTransitions() {
+    public Map<Identifier, Transition> getAllTransitions() {
         return transitions;
     }
 
-    public Transition getTransition(String identifier) {
+    public Transition getTransition(Identifier identifier) {
         return transitions.get(identifier);
     }
 
-    public <T> Optional<T> where(Map<String, T> map, Function<T, String> identifierGetter, String matchingId) {
+    public <T> Optional<T> where(
+        Map<Identifier, T> map,
+        Function<T, Identifier> identifierGetter,
+        Identifier matchingId
+    ) {
         return map.values().stream()
             .filter(value -> identifierGetter.apply(value).equals(matchingId))
             .findFirst();
     }
-
 }

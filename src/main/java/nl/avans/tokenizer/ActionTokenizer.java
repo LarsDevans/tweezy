@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class ActionTokenizer extends Tokenizer {
 
-    public ActionTokenizer(String scriptLine) {
+    public ActionTokenizer(ScriptLine scriptLine) {
         super(scriptLine);
     }
 
@@ -21,5 +21,4 @@ public class ActionTokenizer extends Tokenizer {
     protected int getExpectedTokenCount() {
         return 4;
     }
-
 }

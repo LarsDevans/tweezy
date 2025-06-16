@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class StateTokenizer extends Tokenizer {
 
-    public StateTokenizer(String scriptLine) {
+    public StateTokenizer(ScriptLine scriptLine) {
         super(scriptLine);
     }
 
@@ -21,5 +21,4 @@ public class StateTokenizer extends Tokenizer {
     protected int getExpectedTokenCount() {
         return 5;
     }
-
 }

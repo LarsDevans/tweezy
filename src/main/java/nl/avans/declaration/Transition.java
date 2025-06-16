@@ -1,30 +1,39 @@
 package nl.avans.declaration;
 
+import java.util.List;
 import java.util.Optional;
-
 import nl.avans.declaration.state.State;
+import nl.avans.drawer.IDeclarationVisitor;
+import nl.avans.drawer.IVisitable;
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
-import nl.avans.visitor.IDeclarationVisitor;
 
-public class Transition extends Declaration {
+// The connection between two states.
+public class Transition extends Declaration implements IVisitable {
 
-    private String sourceIdentifier;
-    private String destinationIdentifier;
-    private String triggerIdentifier;
-    private String guardCondition;
+    // The guard condition between the two states (can be blank).
+    public record GuardCondition(String literal) {}
+
+    private Identifier sourceIdentifier;
+    private Identifier destinationIdentifier;
+    private Identifier triggerIdentifier;
+    private GuardCondition guardCondition;
 
     private State source;
     private State destination;
-    private Trigger trigger;
-    private Action action;
+
+    // A transition has either zero or one trigger.
+    private Optional<Trigger> trigger = Optional.empty();
+
+    // A transition has either zero or one action.
+    private Optional<Action> action = Optional.empty();
 
     public Transition(
-        String identifier,
-        String sourceIdentifier,
-        String destinationIdentifier,
-        String triggerIdentifier,
-        String guardCondition
+        Identifier identifier,
+        Identifier sourceIdentifier,
+        Identifier destinationIdentifier,
+        Identifier triggerIdentifier,
+        GuardCondition guardCondition
     ) {
         super(identifier);
 
@@ -34,7 +43,7 @@ public class Transition extends Declaration {
         this.guardCondition = guardCondition;
     }
 
-    public String getSourceIdentifier() {
+    public Identifier getSourceIdentifier() {
         return sourceIdentifier;
     }
 
@@ -42,7 +51,7 @@ public class Transition extends Declaration {
         return source;
     }
 
-    public String getDestinationIdentifier() {
+    public Identifier getDestinationIdentifier() {
         return destinationIdentifier;
     }
 
@@ -50,28 +59,38 @@ public class Transition extends Declaration {
         return destination;
     }
 
-    public String getTriggerIdentifier() {
+    public Identifier getTriggerIdentifier() {
         return triggerIdentifier;
     }
 
-    public Trigger getTrigger() {
+    public Optional<Trigger> getTrigger() {
         return trigger;
     }
 
-    public Action getAction() {
-        return action;
+    public GuardCondition getGuardCondition() {
+        return guardCondition;
     }
 
-    public String getGuardCondition() {
-        return guardCondition;
+    public Optional<Action> getAction() {
+        return action;
     }
 
     @Override
     public void attachReferences(ParsingContext ctx) {
         source = ctx.getState(sourceIdentifier);
         destination = ctx.getState(destinationIdentifier);
-        trigger = ctx.getTrigger(triggerIdentifier);
-        action = ctx.getAction(super.getIdentifier()) == null ? null : ctx.getAction(super.getIdentifier()).getFirst();;
+
+        Trigger trigger = ctx.getTrigger(triggerIdentifier);
+        if (trigger != null) {
+            this.trigger = Optional.of(trigger);
+        }
+
+        List<Action> actions = ctx.getActions(super.getIdentifier());
+        if (actions != null && !actions.isEmpty()) {
+            // This will ignore any additional actions that may have been
+            // defined on the same transition by accident. Therefore ignoring.
+            action = Optional.of(actions.getFirst());
+        }
     }
 
     @Override
@@ -82,29 +101,7 @@ public class Transition extends Declaration {
     }
 
     @Override
-    public String toString() {
-        return String.format(
-            """
-            --------------------------------------------------
-            Transition with:
-                Identifier:     %s
-                Source:         %s
-                Destination:    %s
-                Trigger:        %s
-                Guard:          %s
-            --------------------------------------------------
-            """,
-            super.getIdentifier(),
-            Optional.ofNullable(getSource()).map(State::getIdentifier).orElse("None"),
-            Optional.ofNullable(getDestination()).map(State::getIdentifier).orElse("None"),
-            Optional.ofNullable(getTrigger()).map(Trigger::getIdentifier).orElse("None"),
-            getGuardCondition()
-        );
-    }
-
-    @Override
     public void Accept(IDeclarationVisitor visitor) {
         visitor.Visit(this);
     }
-
 }

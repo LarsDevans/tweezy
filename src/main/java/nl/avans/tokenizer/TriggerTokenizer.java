@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class TriggerTokenizer extends Tokenizer {
 
-    public TriggerTokenizer(String scriptLine) {
+    public TriggerTokenizer(ScriptLine scriptLine) {
         super(scriptLine);
     }
 
@@ -19,5 +19,4 @@ public class TriggerTokenizer extends Tokenizer {
     protected int getExpectedTokenCount() {
         return 3;
     }
-
 }

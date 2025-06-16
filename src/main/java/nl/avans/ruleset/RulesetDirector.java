@@ -80,7 +80,7 @@ public class RulesetDirector {
             .addRule(CommonRule.DeclarationIdentifierRule(trigger), trigger)
             .addRule(
                 new Rule<Trigger>(
-                    t -> !t.getDescription().isBlank(),
+                    t -> !t.getDescription().literal().isBlank(),
                     String.format(
                         "De description van trigger '%s' is ongeldig. Het moet minstens uit één karakter bestaan.",
                         trigger.getIdentifier()
@@ -95,7 +95,7 @@ public class RulesetDirector {
             .addRule(CommonRule.DeclarationIdentifierRule(action), action)
             .addRule(
                 new Rule<Action>(
-                    a -> !a.getDescription().isBlank(),
+                    a -> !a.getDescription().literal().isBlank(),
                     String.format(
                         "De description van action '%s' is ongeldig. Het moet minstens uit één karakter bestaan.",
                         action.getIdentifier()
@@ -138,7 +138,7 @@ public class RulesetDirector {
 
         public static Rule<Declaration> DeclarationIdentifierRule(Declaration declaration) {
            return new Rule<Declaration>(
-                s -> s.getIdentifier().matches("[a-zA-Z]+"),
+                s -> s.getIdentifier().literal().matches("[a-zA-Z]+"),
                 String.format(
                     "De identifier '%s' is ongeldig. Alleen letters (a-z, A-Z) zijn toegestaan.",
                     declaration.getIdentifier()
@@ -148,8 +148,8 @@ public class RulesetDirector {
 
         public static Rule<State> StateParentalRule(State state) {
             return new Rule<State>(
-                s -> (s.getParentIdentifier().equals("_") && s.getParent() == null) ||
-                     (s.getParent() instanceof State),
+                s -> (s.getParentIdentifier().literal().equals("_") && s.getParent().isEmpty()) ||
+                     (s.getParent().isPresent() && s.getParent().get() instanceof State),
                 String.format(
                     "De parent van state '%s' is ongeldig. Een state moet een geldige parent hebben of '_' als er geen parent is.",
                     state.getIdentifier()
@@ -159,7 +159,7 @@ public class RulesetDirector {
 
         public static Rule<State> StateNamingRule(State state) {
             return new Rule<State>(
-                s -> !s.getName().contains("\""),
+                s -> !s.getName().literal().contains("\""),
                 String.format(
                     "De naam van state '%s' bevat een ongeldig teken (\"). Gebruik geen aanhalingstekens in de naam.",
                     state.getIdentifier()
@@ -178,8 +178,8 @@ public class RulesetDirector {
                         .map(t ->
                             String.format(
                                 "%s | %s",
-                                t.getTrigger() != null
-                                    ? t.getTrigger().getDescription()
+                                t.getTrigger().isPresent()
+                                    ? t.getTrigger().get().getDescription()
                                     : "_",
                                 t.getGuardCondition()
                             )

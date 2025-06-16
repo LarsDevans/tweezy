@@ -24,14 +24,18 @@ public abstract class FMS42 {
      */
     public static List<Declaration> interpret(String script) throws IOException {
         String sanitizedScript = sanitizeScript(script);
+
+        // Positive lookbehind that split the chain of statements into singular statements.
         String[] statements = sanitizedScript.split("(?<=;)");
 
+        // Every declaration extracted from the statements.
         List<Declaration> declarations = new ArrayList<>();
 
         for (int i = 0; i < statements.length; i++) {
             String scriptLine = statements[i];
             Token[] tokens = extractTokensFromStatement(scriptLine);
 
+            // Token index zero is always the declaration identifier.
             String identifier = tokens[0].literal();
             Declaration declaration = DeclarationFactory.create(
                 identifier,
@@ -42,15 +46,15 @@ public abstract class FMS42 {
             declarations.add(declaration);
         }
 
+        // First, all declarations need their references and rulesets before
+        // confirming or denying the validity of it.
         for (Declaration declaration : declarations) {
             declaration.attachReferences(parsingContext);
             declaration.attachRuleset();
         }
 
         for (Declaration declaration : declarations) {
-            if (declaration.getRuleset() != null) {
-                declaration.getRuleset().validate();
-            }
+            declaration.getRuleset().validate();
         }
 
         return declarations;
@@ -62,12 +66,15 @@ public abstract class FMS42 {
     }
 
     private static String sanitizeScript(String script) {
+        // Replaces all comment character (#) with a blank string.
         String withoutComments = script.replaceAll("#.*|\\n", "");
+
+        // Replaces all whitespace gaps bigger than one with a single whitespace character.
         String normalizedWhitespace = withoutComments.replaceAll(
             "\\s{2,}",
             " "
         );
+
         return normalizedWhitespace.trim();
     }
-
 }

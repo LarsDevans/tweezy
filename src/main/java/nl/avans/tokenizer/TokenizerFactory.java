@@ -3,11 +3,13 @@ package nl.avans.tokenizer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import nl.avans.tokenizer.Tokenizer.ScriptLine;
 
-// ANCHOR - Late binding factory method
+// Concrete tokenizer implementation producer.
 public abstract class TokenizerFactory {
 
-    private static final Map<String, Function<String, Tokenizer>> registry =
+    // The token keyword is mapped to a concrete tokenizer implementation constructor.
+    private static final Map<String, Function<ScriptLine, Tokenizer>> registry =
         new HashMap<>();
 
     static {
@@ -18,9 +20,11 @@ public abstract class TokenizerFactory {
     }
 
     public static Tokenizer create(String scriptLine) {
+        // Every keyword is the first word within a script line.
         String keyword = scriptLine.trim().split("\\s+")[0];
-        Function<String, Tokenizer> constructor = registry.get(keyword);
-        return constructor != null ? constructor.apply(scriptLine) : null;
+        Function<ScriptLine, Tokenizer> constructor = registry.get(keyword);
+        return constructor != null
+            ? constructor.apply(new ScriptLine(scriptLine))
+            : null;
     }
-
 }

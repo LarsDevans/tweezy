@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 public class TransitionTokenizer extends Tokenizer {
 
-    public TransitionTokenizer(String scriptLine) {
+    public TransitionTokenizer(ScriptLine scriptLine) {
         super(scriptLine);
     }
 
@@ -21,5 +21,4 @@ public class TransitionTokenizer extends Tokenizer {
     protected int getExpectedTokenCount() {
         return 6;
     }
-
 }

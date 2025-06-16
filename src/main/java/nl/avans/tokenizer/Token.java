@@ -1,3 +1,4 @@
 package nl.avans.tokenizer;
 
-public record Token(String literal) { }
+// Every token is a representable part of a greater whole statement.
+public record Token(String literal) {}

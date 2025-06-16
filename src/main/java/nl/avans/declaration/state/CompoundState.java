@@ -2,22 +2,22 @@ package nl.avans.declaration.state;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import nl.avans.drawer.IDeclarationVisitor;
 import nl.avans.parser.ParsingContext;
 import nl.avans.ruleset.RulesetDirector;
-import nl.avans.visitor.IDeclarationVisitor;
 
+// A state which itself can be a parental state of other states.
 public class CompoundState extends State {
 
+    // Can hold other compound states, or 'regular' states.
     private List<State> children = new ArrayList<>();
 
     public CompoundState(
-        String identifier,
-        String parentIdentifier,
-        String name
+        Identifier identifier,
+        Identifier parentIdentifier,
+        StateName name
     ) {
-        super(identifier, parentIdentifier, name, "COMPOUND");
+        super(identifier, parentIdentifier, name, StateType.COMPOUND);
     }
 
     public List<State> getChildren() {
@@ -40,25 +40,6 @@ public class CompoundState extends State {
         RulesetDirector director = new RulesetDirector();
         director.constructCompoundStateRuleset(this);
         super.setRuleset(director.build());
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-            """
-            --------------------------------------------------
-            Compound State with:
-                Identifier: %s
-                Parent:     %s
-                Name:       %s
-                Children:   %s
-            --------------------------------------------------
-            """,
-            super.getIdentifier(),
-            super.getParentIdentifier(),
-            getName(),
-            getChildren().stream().map(State::getIdentifier).collect(Collectors.joining(", "))
-        );
     }
 
     @Override

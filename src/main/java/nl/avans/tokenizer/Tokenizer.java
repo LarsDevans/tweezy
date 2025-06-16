@@ -3,21 +3,20 @@ package nl.avans.tokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Every token implementation is a token at its highest abstraction level.
 public abstract class Tokenizer {
 
-    protected final String scriptLine;
+    public record ScriptLine(String literal) {}
 
-    public Tokenizer(String scriptLine) {
+    protected final ScriptLine scriptLine;
+
+    public Tokenizer(ScriptLine scriptLine) {
         this.scriptLine = scriptLine;
     }
 
-    protected abstract Pattern getPattern();
-
-    protected abstract int getExpectedTokenCount();
-
     public Token[] tokenize() {
         Pattern pattern = getPattern();
-        Matcher matcher = pattern.matcher(scriptLine);
+        Matcher matcher = pattern.matcher(scriptLine.literal());
 
         if (!matcher.find()) {
             throw new IllegalArgumentException(
@@ -37,9 +36,15 @@ public abstract class Tokenizer {
 
         Token[] tokens = new Token[getExpectedTokenCount()];
         for (int i = 0; i < getExpectedTokenCount(); i++) {
+            // Group starts at 1, therefore + 1.
             tokens[i] = new Token(matcher.group(i + 1));
         }
         return tokens;
     }
 
+    // The pattern that get token groups from the raw statement.
+    protected abstract Pattern getPattern();
+
+    // The amount of expected token groups in a pattern.
+    protected abstract int getExpectedTokenCount();
 }
