@@ -25,6 +25,10 @@ public class ConsoleDrawer implements IDrawStrategy, IDeclarationVisitor {
         return "\s".repeat(childLevel * indentSize);
     }
 
+    public FmsStringBuilder getFsb() {
+        return fsb;
+    }
+
     @Override
     public void Draw(List<IVisitable> visitee) {
         fsb.appendLn("%s\n", "#".repeat(100));
