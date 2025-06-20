@@ -18,5 +18,4 @@ public class RulesetBuilder {
     public Ruleset build() {
         return new Ruleset(bindings);
     }
-
 }

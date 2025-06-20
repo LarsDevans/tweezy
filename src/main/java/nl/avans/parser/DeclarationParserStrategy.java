@@ -7,5 +7,4 @@ import nl.avans.tokenizer.Token;
 public interface DeclarationParserStrategy {
 
     public abstract Declaration parse(Token[] tokens, ParsingContext ctx);
-
 }

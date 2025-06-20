@@ -21,5 +21,4 @@ public class Rule<T extends Declaration> {
     public String getErrorMessage() {
         return errorMessage;
     }
-
 }
