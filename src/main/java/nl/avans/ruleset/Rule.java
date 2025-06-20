@@ -14,7 +14,7 @@ public class Rule<T extends Declaration> {
         this.errorMessage = errorMessage;
     }
 
-    public boolean validate(T declaration) throws Exception {
+    public boolean validate(T declaration) throws IllegalStateException {
         return condition.test(declaration);
     }
 

@@ -32,10 +32,10 @@ public class Ruleset {
         public void validate() throws IOException {
             try {
                 if (!rule.validate(declaration)) {
-                    System.out.println(rule.getErrorMessage());
+                    throw new IllegalStateException(rule.getErrorMessage());
                 }
-            } catch (Exception e) {
-                throw new IOException(
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException(
                     "The relationships between declarations are invalid or inconsistent. The interpreter was unable to determine the specific cause. Please review the logical connections between states, transitions, and other declarations."
                 );
             }

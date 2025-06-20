@@ -11,15 +11,16 @@ import nl.avans.utils.FmsStringBuilder;
 public class FmsStringBuilderTest {
 
     @Test
-    public void appendIf_appendsWhenConditionTrue() {
+    public void appendLnIf_appendsWhenConditionTrue() {
         // Arrange
         FmsStringBuilder builder = new FmsStringBuilder();
 
         // Act
-        builder.appendIf(true, "True branch %d", 1);
+        builder.append("Message:");
+        builder.appendLnIf(true, "Hello, World!");
 
         // Assert
-        assertEquals("True branch 1", builder.toString());
+        assertEquals("Message:\nHello, World!", builder.toString());
     }
 
     @Test
